@@ -3,7 +3,7 @@ project(VisiumEditor)
 
 # Find the required packages
 find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
-find_package(SFGUI REQUIRED)
+find_package(TGUI 0.9 REQUIRED)
 
 # Include directories
 include_directories(${CMAKE_SOURCE_DIR}/include)
@@ -15,4 +15,4 @@ file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 add_executable(VisiumEditor ${SOURCES})
 
 # Link libraries to the executable
-target_link_libraries(VisiumEditor sfml-graphics sfml-window sfml-system SFGUI)
+target_link_libraries(VisiumEditor tgui sfml-graphics sfml-window sfml-system SFGUI)

@@ -65,6 +65,39 @@ float p_dist(T1 &a, T2 b)
     return dist;
 }
 
+/// @brief Get's the closest point on a line to a position in space
+/// @param seg line to check against
+/// @param P point we want to find closest
+/// @return vector along the line
+sf::Vector2f p2seg(Segment& seg, sf::Vector2f P)
+{
+    sf::Vector2f A = point_v2f(seg.start);
+    sf::Vector2f B = point_v2f(seg.end);
+    sf::Vector2f AB = B - A;
+    sf::Vector2f AP = P - A;
+
+    /*  */
+    float scalar_projection = (AP.x * AB.x + AP.y * AB.y) / (AB.x * AB.x + AB.y * AB.y);
+
+    sf::Vector2f C = A + scalar_projection * AB;
+    return C;
+}
+
+/// @brief Get's the distance betwe
+/// @tparam T1 
+/// @tparam T2 
+/// @param seg line to check against
+/// @param p 
+/// @param epsilon 
+/// @return 
+bool is_close(Segment& seg, sf::Vector2f p, float epsilon)
+{
+    sf::Vector2f C = p2seg(seg, p);
+    /* Check if distance is less than the required to count */
+    return p_dist(C, p) < epsilon;
+
+}
+
 /// @brief Sets a given Point to a point of one or the other
 /// @param s_s distance from start to start (of points)
 /// @param s_e distance from start to end (of points)

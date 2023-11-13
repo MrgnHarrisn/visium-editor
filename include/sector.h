@@ -7,6 +7,7 @@
 struct Point
 {
     float x, y;
+    unsigned int is_portal = 0;
 
     Point() : x(NAN), y(NAN) {}
     Point(float xVal, float yVal) : x(xVal), y(yVal) {}

@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <TGUI/TGUI.hpp>
 
 #include "utils.h"  // this includes point so yeah
 
@@ -7,7 +8,17 @@
 /* Italian Code */
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(1000, 800), "Visium Editor", sf::Style::None | sf::Style::Close);
+    sf::RenderWindow window(sf::VideoMode(1400, 800), "Visium Editor", sf::Style::None | sf::Style::Close);
+    tgui::Gui gui{window};
+
+    auto rightPanel = tgui::Panel::create();
+    rightPanel->setPosition(1000, 0);
+    rightPanel->setSize(400, 800);
+    rightPanel->getRenderer()->setBackgroundColor(sf::Color{105, 105, 105, 100});   // make it gray
+    // rightPanel->setEnabled(false);
+    
+
+    gui.add(rightPanel);
 
     Point offset;
     offset.x = 0;
@@ -20,6 +31,7 @@ int main() {
     int sec_id = 0;
 
     Sector* current_sec = new Sector;
+    Segment* current_seg = new Segment;
     current_sec->id = sec_id;
     sectors.push_back(current_sec);
 
@@ -34,10 +46,12 @@ int main() {
     bool panning = false;
     sf::Vector2i lastPanPosition; // Add this line to store the last pan position
 
-
     while (window.isOpen()) {
+
         sf::Event event;
+        
         while (window.pollEvent(event)) {
+            
             if (event.type == sf::Event::Closed) {
                 window.close();
             } else if (event.type == sf::Event::MouseButtonPressed) {
@@ -47,7 +61,6 @@ int main() {
                     if (!holding) {     // if not holding already
                         holding = true;
                         start = v2i_point(sf::Mouse::getPosition(window));
-                        // printf("Pressed\n");
                     }
                 } else if (event.mouseButton.button == sf::Mouse::Right) {  // are we trying to pan?
                     if (!panning) {
@@ -59,7 +72,6 @@ int main() {
             } else if (event.type == sf::Event::MouseButtonReleased) {  // Mouse buttons released
                 if (event.mouseButton.button == sf::Mouse::Left) {  // check if it was the left button
                     if (holding) {
-                        // printf("Releasing\n");
                         holding = false;
                         end = v2i_point(sf::Mouse::getPosition(window));
 
@@ -75,12 +87,15 @@ int main() {
                         if (!std::isnan(temp_s.start.x)) {
                             seg->start.x = temp_s.start.x;
                         }
+
                         if (!std::isnan(temp_s.start.y)) {
                             seg->start.y = temp_s.start.y;
                         }
+
                         if (!std::isnan(temp_s.end.x)) {
                             seg->end.x = temp_s.end.x;
                         }
+
                         if (!std::isnan(temp_s.end.y)) {
                             seg->end.y = temp_s.end.y;
                         }
@@ -138,8 +153,24 @@ int main() {
                             sectors[index]->segs.pop_back();                                    /* Remove segment */
                         }
                     }
+                } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
+                    current_seg = new Segment;
+                    float closest = MAXFLOAT;
+                    sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
+                    int i = 0;
+                    for (Segment seg : sectors[sec_id]->segs) {
+                        sf::Vector2f seg_p = p2seg(seg, (sf::Vector2f)mouse_pos);
+                        float dist = p_dist(seg_p, (sf::Vector2f)mouse_pos);
+                        if (dist < closest) {
+                            current_seg = &sectors[sec_id]->segs[i];
+                            closest = dist;
+                        }
+                        i++;
+                    }
                 }
             }
+
+            gui.handleEvent(event);
 
         }
 
@@ -165,6 +196,12 @@ int main() {
             }
             i++;
         }
+        
+        if (current_seg) {
+            draw_line(window, current_seg->start, current_seg->end, offset, sf::Color::Magenta);
+        }
+
+        gui.draw();
         window.display();
     }
 
