@@ -9,16 +9,7 @@
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(1400, 800), "Visium Editor", sf::Style::None | sf::Style::Close);
-    tgui::Gui gui{window};
-
-    auto rightPanel = tgui::Panel::create();
-    rightPanel->setPosition(1000, 0);
-    rightPanel->setSize(400, 800);
-    rightPanel->getRenderer()->setBackgroundColor(sf::Color{105, 105, 105, 100});   // make it gray
-    // rightPanel->setEnabled(false);
     
-
-    gui.add(rightPanel);
 
     Point offset;
     offset.x = 0;
@@ -45,6 +36,40 @@ int main() {
     bool holding = false;
     bool panning = false;
     sf::Vector2i lastPanPosition; // Add this line to store the last pan position
+
+    tgui::Gui gui{window};
+
+    auto rightPanel = tgui::Panel::create();
+    rightPanel->setPosition(1000, 0);
+    rightPanel->setSize(400, 800);
+    rightPanel->getRenderer()->setBackgroundColor(sf::Color{105, 105, 105, 100});   // make it gray
+
+    auto layout = tgui::VerticalLayout::create();
+    layout->setSize(rightPanel->getSize());
+    
+
+    auto seg_id_label = tgui::Label::create();
+    seg_id_label->getRenderer()->setTextColor(sf::Color::White);
+
+    auto sec_walls = tgui::Label::create();
+    sec_walls->getRenderer()->setTextColor(sf::Color::White);
+
+    auto is_portal_option = tgui::CheckBox::create("Is Portal?");
+    is_portal_option->getRenderer()->setTextColor(sf::Color::White);
+
+
+    /* Add widgets to right panel */
+    layout->add(sec_walls);
+    layout->insertSpace(1, 0.5);
+    layout->add(seg_id_label);
+    layout->insertSpace(1, 0.5);
+    layout->add(is_portal_option);
+    
+    rightPanel->add(layout);
+    // rightPanel->setEnabled(false);
+
+
+    gui.add(rightPanel);
 
     while (window.isOpen()) {
 
@@ -82,6 +107,10 @@ int main() {
 
                         /* Snap to segment in sector */
                         Segment temp_s = closest_point(seg, current_sec->segs, 20);  // I think this is in pixels?
+
+                        if (p_dist(seg->start, seg->end) <= 3) {
+                            continue;
+                        }
 
                         /* Figure out which numbers to set */
                         if (!std::isnan(temp_s.start.x)) {
@@ -154,14 +183,14 @@ int main() {
                         }
                     }
                 } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
-                    current_seg = new Segment;
+                    // current_seg = new Segment;
                     float closest = MAXFLOAT;
-                    sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
+                    sf::Vector2f mouse_pos = (sf::Vector2f)sf::Mouse::getPosition(window) - point_v2f(offset);
                     int i = 0;
                     for (Segment seg : sectors[sec_id]->segs) {
-                        sf::Vector2f seg_p = p2seg(seg, (sf::Vector2f)mouse_pos);
-                        float dist = p_dist(seg_p, (sf::Vector2f)mouse_pos);
-                        if (dist < closest) {
+                        sf::Vector2f seg_p = p2seg(seg, mouse_pos);
+                        float dist = p_dist(seg_p, mouse_pos);
+                        if (dist < closest && std::abs(dist) < 10) {
                             current_seg = &sectors[sec_id]->segs[i];
                             closest = dist;
                         }
@@ -189,6 +218,12 @@ int main() {
         }
 
         window.clear(sf::Color::Black);
+
+        /* UI stuff starts here */
+        seg_id_label->setText("Sector ID: " + std::to_string(sec_id));
+        sec_walls->setText("Sector Walls: " + std::to_string(sectors[sec_id]->segs.size()));
+        /* UI stuff ends here */
+
         int i = 0;
         for (Sector* sec : sectors) {
             for (Segment s : sec->segs) {
