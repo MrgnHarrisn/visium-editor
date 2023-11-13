@@ -133,12 +133,20 @@ void serialize(std::vector<Sector*> sectors)
     std::string filename = "";
     printf("Enter filename: ");
     std::cin >> filename;
+    filename += ".wad";
     std::fstream output_file;
     output_file.open(filename, std::ios::out);
 
     /* Itterate over sectors write them into file */
     // V not_really_a_version
-    output_file << VERSION << " SECS " << sectors.size() << "\n\n";
+    unsigned int size = 0;
+    for (Sector* sec : sectors) {
+        if (sec->segs.size() > 0) {
+            size++;
+        }
+    }
+
+    output_file << VERSION << " SECS " << size << "\n\n";
 
     for (Sector* sec : sectors) {
             /* Sector ID */

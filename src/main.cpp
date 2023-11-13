@@ -7,7 +7,7 @@
 /* Italian Code */
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(800, 800), "Acta Editor", sf::Style::None | sf::Style::Close);
+    sf::RenderWindow window(sf::VideoMode(1000, 800), "Visium Editor", sf::Style::None | sf::Style::Close);
 
     Point offset;
     offset.x = 0;

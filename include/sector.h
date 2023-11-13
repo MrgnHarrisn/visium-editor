@@ -8,8 +8,12 @@ struct Point
 {
     float x, y;
 
-    Point() : x(Point::NaP.x), y(Point::NaP.y) {}
+    Point() : x(NAN), y(NAN) {}
     Point(float xVal, float yVal) : x(xVal), y(yVal) {}
+
+    bool isnap() {
+        return std::isnan(x) || std::isnan(y);
+    }
     
     static Point min(Point a, Point b)
     {
@@ -22,11 +26,7 @@ struct Point
         output.y = a.y - b.y;
         return output;
     }
-
-    static const Point NaP;
 };
-
-const Point Point::NaP = {NAN, NAN};
 
 /// @brief A line segment from point start to point end
 struct Segment
