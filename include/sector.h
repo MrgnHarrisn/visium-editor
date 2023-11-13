@@ -33,7 +33,7 @@ struct Point
 struct Segment
 {
     Point start, end;
-    int16_t portal_id;
+    int16_t portal_id = -1;
 };
 
 /// @brief Contains an ID and a vector<Segment>

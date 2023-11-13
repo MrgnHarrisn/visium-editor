@@ -187,7 +187,7 @@ void serialize(std::vector<Sector*> sectors)
             output_file << "ID " << sec->id << " NUM_W " << sec->segs.size() << "\n";
 
             for (Segment seg : sec->segs) {     /* No sex inuendos here */
-                output_file << seg.start.x << " " << seg.start.y << " " << seg.end.x << " " << seg.end.y << "\n";
+                output_file << seg.start.x << " " << seg.start.y << " " << seg.end.x << " " << seg.end.y << " " << seg.portal_id << "\n";
             }
             output_file << "\n";
         }
