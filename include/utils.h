@@ -196,3 +196,14 @@ void serialize(std::vector<Sector*> sectors)
     output_file.close();
     printf("Saved!\n");
 }
+
+/// @brief Checks if a point is inside an area
+/// @param position top left of area
+/// @param size size of the area
+/// @param pos position of the point
+/// @return 
+bool box_contains_pos(sf::Vector2f position, sf::Vector2f size, sf::Vector2f pos)
+{
+    return pos.x >= position.x && pos.y > position.y
+            && pos.x <= position.x + size.x && pos.y <= position.y + size.y;
+}
