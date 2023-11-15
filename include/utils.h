@@ -9,7 +9,7 @@
 
 #include "sector.h"
 
-#define VERSION "v1_1"
+#define VERSION "v1_2"
 
 #pragma once
 
@@ -207,7 +207,7 @@ std::string color_to_str(sf::Color color)
     return output;
 }
 
-void serialize(std::vector<Sector*> sectors, std::vector<sf::Color> colors)
+void serialize(std::vector<Sector*> sectors, std::vector<sf::Color> colors, sf::Vector2f p)
 {
     /* File name can be 256 chars long */
     std::string filename = "";
@@ -227,6 +227,7 @@ void serialize(std::vector<Sector*> sectors, std::vector<sf::Color> colors)
     }
 
     output_file << VERSION << "\n"; //" SECS " << size << "\n\n";
+    output_file << "PPOS\n" << p.x << " " << p.y << "\n";
     output_file << "COLS " << colors.size() << "\n";
 
     

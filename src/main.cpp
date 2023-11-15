@@ -38,6 +38,10 @@ int main()
     bool holding = false;
     bool panning = false;
 
+    /* Placing Player Stuff/Camera */
+    bool placing_player = false;
+    sf::Vector2f cam_pos = {0, 0};
+
     /* Setting portals */
     bool setting_portal = false;
     int16_t selected_sector_portal = -1;
@@ -102,9 +106,13 @@ int main()
                     {
                         if (event.mouseButton.button == sf::Mouse::Left)
                         {
+                            
+                            if (placing_player) {
+                                sf::Vector2f player_pos = static_cast<sf::Vector2f>(sf::Mouse::getPosition(window));
+                                cam_pos = player_pos + point_v2f(offset);
+                            } else if (!holding)
                             /* Left button is pressed */
                             /* Get mouse position and wait for release */
-                            if (!holding)
                             { // if not holding already
                                 holding = true;
                                 start = v2i_point(sf::Mouse::getPosition(window));
@@ -213,14 +221,14 @@ int main()
                     }
                     else if (event.type == sf::Event::KeyPressed)
                     {
-                        if (sf::Keyboard::isKeyPressed(sf::Keyboard::P) && setting_portal) {
+                        if (sf::Keyboard::isKeyPressed(sf::Keyboard::P) && !setting_portal) {
                             setting_portal = true;
                             selected_sector_portal = sec_id;
                         } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
                         {
                             /* Save */
                             printf("Saving\n");
-                            serialize(sectors, unique_colors(sectors));
+                            serialize(sectors, unique_colors(sectors), cam_pos);
                         }
                         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
                         {
@@ -255,6 +263,8 @@ int main()
                                 }
                                 i++;
                             }
+                        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::C)) {
+                            placing_player = !placing_player;
                         }
                     } else if (event.type == sf::Event::KeyReleased) {
                         
@@ -326,6 +336,15 @@ int main()
         fuckyou.setSize({200, 50});
         // fuckyou.setFillColor(sf::Color::Magenta);
         fuckyou.setFillColor({232,228,228});
+
+        sf::RectangleShape player_pos;
+        player_pos.setPosition(cam_pos + point_v2f(offset));
+        player_pos.setOrigin({5, 5});
+        player_pos.setSize({10, 10});
+        player_pos.setFillColor(sf::Color::Cyan);
+
+        window.draw(player_pos);
+
         window.draw(fuckyou);
         window.display();
     }
