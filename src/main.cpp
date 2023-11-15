@@ -37,8 +37,11 @@ int main()
 
     bool holding = false;
     bool panning = false;
+
+    /* Setting portals */
     bool setting_portal = false;
-    
+    int16_t selected_sector_portal = -1;
+
     sf::Vector2i lastPanPosition; // Add this line to store the last pan position
 
     tgui::Gui gui{window};
@@ -210,7 +213,10 @@ int main()
                     }
                     else if (event.type == sf::Event::KeyPressed)
                     {
-                        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
+                        if (sf::Keyboard::isKeyPressed(sf::Keyboard::P) && setting_portal) {
+                            setting_portal = true;
+                            selected_sector_portal = sec_id;
+                        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
                         {
                             /* Save */
                             printf("Saving\n");
@@ -249,6 +255,14 @@ int main()
                                 }
                                 i++;
                             }
+                        }
+                    } else if (event.type == sf::Event::KeyReleased) {
+                        
+                        setting_portal = false;
+                        if (event.key.code == sf::Keyboard::Key::P) {
+                            printf("This is working?\n");
+                            current_seg->portal_id = sec_id;
+                            printf("Portal ID set to %d\n", current_seg->portal_id);
                         }
                     }
                 }
