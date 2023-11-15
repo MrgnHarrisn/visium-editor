@@ -15,4 +15,4 @@ file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 add_executable(VisiumEditor ${SOURCES})
 
 # Link libraries to the executable
-target_link_libraries(VisiumEditor tgui sfml-graphics sfml-window sfml-system SFGUI)
+target_link_libraries(VisiumEditor tgui sfml-graphics sfml-window sfml-system)
