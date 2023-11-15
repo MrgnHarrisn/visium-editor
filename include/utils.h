@@ -11,7 +11,7 @@
 
 #include "sector.h"
 
-#define VERSION "v1_4"
+#define VERSION "v1_2"
 
 #pragma once
 
@@ -325,7 +325,7 @@ void serialize(std::vector<Sector *> sectors, std::vector<sf::Color> colors, Cam
 
     output_file << VERSION << "\n"; //" SECS " << size << "\n\n";
     output_file << "PPOS\n"
-                << inf.pos.x << " " << inf.pos.y << " " << inf.sec_id << "\n";
+                << inf.pos.x << " " << inf.pos.y << " " << "\n";
     output_file << "COLS " << colors.size() << "\n";
 
     /* Add Colors in order of usage [index is ID] */

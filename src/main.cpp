@@ -3,6 +3,7 @@
 #include <TGUI/TGUI.hpp>
 
 #include "utils.h" // this includes point so yeah
+#include <cfloat>
 
 /* Mmmmmmm */
 /* Italian Code */
