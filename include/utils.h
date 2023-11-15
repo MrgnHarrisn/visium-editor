@@ -9,7 +9,7 @@
 
 #include "sector.h"
 
-#define VERSION "v1_0"
+#define VERSION "v1_1"
 
 #pragma once
 
@@ -160,7 +160,54 @@ void draw_line(sf::RenderWindow &window, Point a, Point b, Point offset, sf::Col
     window.draw(line);
 }
 
-void serialize(std::vector<Sector*> sectors)
+/// @brief Checks if a point is inside an area
+/// @param position top left of area
+/// @param size size of the area
+/// @param pos position of the point
+/// @return 
+bool box_contains_pos(sf::Vector2f position, sf::Vector2f size, sf::Vector2f pos)
+{
+    return pos.x >= position.x && pos.y > position.y
+            && pos.x <= position.x + size.x && pos.y <= position.y + size.y;
+}
+
+int vec_contains_color(std::vector<sf::Color> vec, sf::Color col)
+{
+    for (int i = 0; i < vec.size(); i++) {
+        if (vec[i] == col) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+std::vector<sf::Color> unique_colors(std::vector<Sector*> sectors)
+{
+    std::vector<sf::Color> colors;
+    for (Sector* sec : sectors) {
+        for (int i = 0; i < sec->segs.size(); i++) {
+            int col_index = vec_contains_color(colors, sec->segs[i].color);
+            if ( col_index == -1) {
+                colors.push_back(sec->segs[i].color);
+                sec->segs[i].color_id = colors.size() - 1;
+            } else {
+                sec->segs[i].color_id = col_index;
+            }
+        }
+    }
+
+    return colors;
+
+}
+
+std::string color_to_str(sf::Color color)
+{
+    std::string output = "";
+    output += std::to_string(color.r) + " " + std::to_string(color.g) + " " + std::to_string(color.b) + "\n";
+    return output;
+}
+
+void serialize(std::vector<Sector*> sectors, std::vector<sf::Color> colors)
 {
     /* File name can be 256 chars long */
     std::string filename = "";
@@ -179,7 +226,17 @@ void serialize(std::vector<Sector*> sectors)
         }
     }
 
-    output_file << VERSION << " SECS " << size << "\n\n";
+    output_file << VERSION << "\n"; //" SECS " << size << "\n\n";
+    output_file << "COLS " << colors.size() << "\n";
+
+    
+
+    /* Add Colors in order of usage [index is ID] */
+    for (sf::Color col : colors) {
+        output_file << color_to_str(col);
+    }
+
+    output_file << "SECS " << size << "\n";
 
     for (Sector* sec : sectors) {
             /* Sector ID */
@@ -187,7 +244,7 @@ void serialize(std::vector<Sector*> sectors)
             output_file << "ID " << sec->id << " NUM_W " << sec->segs.size() << "\n";
 
             for (Segment seg : sec->segs) {     /* No sex inuendos here */
-                output_file << seg.start.x << " " << seg.start.y << " " << seg.end.x << " " << seg.end.y << " " << seg.portal_id << "\n";
+                output_file << seg.start.x << " " << seg.start.y << " " << seg.end.x << " " << seg.end.y << " " << seg.color_id << " " << seg.portal_id << "\n";
             }
             output_file << "\n";
         }
@@ -195,15 +252,4 @@ void serialize(std::vector<Sector*> sectors)
 
     output_file.close();
     printf("Saved!\n");
-}
-
-/// @brief Checks if a point is inside an area
-/// @param position top left of area
-/// @param size size of the area
-/// @param pos position of the point
-/// @return 
-bool box_contains_pos(sf::Vector2f position, sf::Vector2f size, sf::Vector2f pos)
-{
-    return pos.x >= position.x && pos.y > position.y
-            && pos.x <= position.x + size.x && pos.y <= position.y + size.y;
 }

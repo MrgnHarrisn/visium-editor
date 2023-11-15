@@ -18,12 +18,13 @@ int main()
 
     std::vector<int> segs_made;
 
-    std::vector<Sector *> sectors;
+    std::vector<Sector*> sectors;
 
     int sec_id = 0;
 
     Sector *current_sec = new Sector;
     Segment *current_seg = new Segment;
+    current_seg = nullptr;
     current_sec->id = sec_id;
     sectors.push_back(current_sec);
 
@@ -36,6 +37,8 @@ int main()
 
     bool holding = false;
     bool panning = false;
+    bool setting_portal = false;
+    
     sf::Vector2i lastPanPosition; // Add this line to store the last pan position
 
     tgui::Gui gui{window};
@@ -72,6 +75,8 @@ int main()
     // rightPanel->setEnabled(false);
 
     gui.add(rightPanel);
+
+    sf::Color previous_color = color_picker->getColor();
 
     while (window.isOpen())
     {
@@ -155,6 +160,8 @@ int main()
                                     seg->end.y = temp_s.end.y;
                                 }
 
+                                seg->color = previous_color;
+
                                 /* Add segment to vector of walls */
                                 current_sec->segs.push_back(*seg);
 
@@ -207,7 +214,7 @@ int main()
                         {
                             /* Save */
                             printf("Saving\n");
-                            serialize(sectors);
+                            serialize(sectors, unique_colors(sectors));
                         }
                         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
                         {
@@ -266,6 +273,14 @@ int main()
             // Reset the mouse to the initial pan position
             sf::Mouse::setPosition(lastPanPosition, window);
         }
+        sf::Color current_color = color_picker->getColor();
+        if (previous_color != current_color) {
+            previous_color = current_color;
+            /* Check if the current segment selected is real */
+            if (current_seg != nullptr) {
+                current_seg->color = previous_color;
+            }
+        }
 
         window.clear(sf::Color::Black);
 
@@ -279,12 +294,12 @@ int main()
         {
             for (Segment s : sec->segs)
             {
-                draw_line(window, s.start, s.end, offset, (i == sec_id ? sf::Color::Green : sf::Color::White));
+                draw_line(window, s.start, s.end, offset, (i == sec_id ? s.color : sf::Color::White));
             }
             i++;
         }
 
-        if (current_seg)
+        if (current_seg != nullptr)
         {
             draw_line(window, current_seg->start, current_seg->end, offset, sf::Color::Magenta);
         }

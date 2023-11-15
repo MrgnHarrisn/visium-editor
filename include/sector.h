@@ -34,6 +34,8 @@ struct Segment
 {
     Point start, end;
     int16_t portal_id = -1;
+    sf::Color color = sf::Color::White;
+    int color_id;
 };
 
 /// @brief Contains an ID and a vector<Segment>
