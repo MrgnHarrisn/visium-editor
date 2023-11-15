@@ -144,6 +144,19 @@ int main()
 
                                 /* Snap to segment in sector */
                                 Segment temp_s = closest_point(seg, current_sec->segs, 20); // I think this is in pixels?
+                                
+                                // Segment _copy_temp = temp_s;
+                                
+                                // try {
+                                //     if (sec_id == 0 && sectors.size() >= 2) {
+                                //         printf("Here\n");
+                                //         temp_s = closest_point(seg, sectors[1]->segs, 20);
+                                //     } else if (sectors.size() > 1 && !sectors[sec_id-1]->segs.empty()){
+                                //         temp_s = closest_point(seg, sectors[sec_id-1]->segs, 20);
+                                //     }
+                                // } catch (...) {
+                                //     temp_s = _copy_temp;
+                                // }
 
                                 if (p_dist(seg->start, seg->end) <= 3)
                                 {

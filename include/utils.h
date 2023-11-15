@@ -7,6 +7,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <algorithm>
+
 #include "sector.h"
 
 #define VERSION "v1_4"
@@ -75,7 +77,7 @@ float p_dist(T1 &a, T2 b)
 /// @param seg line to check against
 /// @param P point we want to find closest
 /// @return vector along the line
-sf::Vector2f p2seg(Segment& seg, sf::Vector2f P)
+sf::Vector2f p2seg(Segment &seg, sf::Vector2f P)
 {
     sf::Vector2f A = point_v2f(seg.start);
     sf::Vector2f B = point_v2f(seg.end);
@@ -90,18 +92,17 @@ sf::Vector2f p2seg(Segment& seg, sf::Vector2f P)
 }
 
 /// @brief Get's the distance betwe
-/// @tparam T1 
-/// @tparam T2 
+/// @tparam T1
+/// @tparam T2
 /// @param seg line to check against
-/// @param p 
-/// @param epsilon 
-/// @return 
-bool is_close(Segment& seg, sf::Vector2f p, float epsilon)
+/// @param p
+/// @param epsilon
+/// @return
+bool is_close(Segment &seg, sf::Vector2f p, float epsilon)
 {
     sf::Vector2f C = p2seg(seg, p);
     /* Check if distance is less than the required to count */
     return p_dist(C, p) < epsilon;
-
 }
 
 /// @brief Sets a given Point to a point of one or the other
@@ -110,14 +111,17 @@ bool is_close(Segment& seg, sf::Vector2f p, float epsilon)
 /// @param result the Point we wish to set
 /// @param seg The given segment we need to find which to set
 /// @param epsilon smallest distance it should snap to
-void set_nearest_point(float dist1, float dist2, Point& result, Segment& seg, float epsilon)
+void set_nearest_point(float dist1, float dist2, Point &result, Segment &seg, float epsilon)
 {
     if (dist1 < epsilon || dist2 < epsilon)
     {
-        Point& selectedPoint = (dist1 < dist2) ? seg.start : seg.end;
-        if (std::isnan(result.x)) {
+        Point &selectedPoint = (dist1 < dist2) ? seg.start : seg.end;
+        if (std::isnan(result.x))
+        {
             result = selectedPoint;
-        } else {
+        }
+        else
+        {
             result = Point::min(result, selectedPoint);
         }
     }
@@ -133,7 +137,10 @@ Segment closest_point(Segment *s, std::vector<Segment> segments, float epsilon)
     Segment result;
 
     /* If there is nothing to check against then don't */
-    if (segments.size() == 0) { return result; }
+    if (segments.size() == 0)
+    {
+        return result;
+    }
 
     for (Segment seg : segments)
     {
@@ -145,6 +152,43 @@ Segment closest_point(Segment *s, std::vector<Segment> segments, float epsilon)
         set_nearest_point(s_s, s_e, result.start, seg, epsilon);
         set_nearest_point(e_s, e_e, result.end, seg, epsilon);
     }
+    return result;
+}
+
+/// @brief Gets closest start and end
+/// @param seg the line we are checking for
+/// @param segments the set of segments we compare points to
+/// @param epsilon the distance required to be a valid distance
+/// @return Either returns a segment with a value or NaN for x and y
+Segment closest_point_portal(Segment *s, std::vector<Segment> segments, Segment* portal, float epsilon)
+{
+    Segment result;
+
+    /* If there is nothing to check against then don't */
+    if (segments.size() == 0)
+    {
+        return result;
+    }
+
+    for (Segment seg : segments)
+    {
+        float s_s = p_dist(s->start, seg.start);
+        float s_e = p_dist(s->start, seg.end);
+        float e_s = p_dist(s->end, seg.start);
+        float e_e = p_dist(s->end, seg.end);
+
+        set_nearest_point(s_s, s_e, result.start, seg, epsilon);
+        set_nearest_point(e_s, e_e, result.end, seg, epsilon);
+    }
+
+    float s_s = p_dist(s->start, portal->start);
+    float s_e = p_dist(s->start, portal->end);
+    float e_s = p_dist(s->end, portal->start);
+    float e_e = p_dist(s->end, portal->end);
+
+    set_nearest_point(s_s, s_e, result.start, *s, epsilon);
+    set_nearest_point(e_s, e_e, result.end, *s, epsilon);
+
     return result;
 }
 
@@ -170,40 +214,45 @@ void draw_line(sf::RenderWindow &window, Point a, Point b, Point offset, sf::Col
 /// @param position top left of area
 /// @param size size of the area
 /// @param pos position of the point
-/// @return 
+/// @return
 bool box_contains_pos(sf::Vector2f position, sf::Vector2f size, sf::Vector2f pos)
 {
-    return pos.x >= position.x && pos.y > position.y
-            && pos.x <= position.x + size.x && pos.y <= position.y + size.y;
+    return pos.x >= position.x && pos.y > position.y && pos.x <= position.x + size.x && pos.y <= position.y + size.y;
 }
 
 int vec_contains_color(std::vector<sf::Color> vec, sf::Color col)
 {
-    for (int i = 0; i < vec.size(); i++) {
-        if (vec[i] == col) {
+    for (int i = 0; i < vec.size(); i++)
+    {
+        if (vec[i] == col)
+        {
             return i;
         }
     }
     return -1;
 }
 
-std::vector<sf::Color> unique_colors(std::vector<Sector*> sectors)
+std::vector<sf::Color> unique_colors(std::vector<Sector *> sectors)
 {
     std::vector<sf::Color> colors;
-    for (Sector* sec : sectors) {
-        for (int i = 0; i < sec->segs.size(); i++) {
+    for (Sector *sec : sectors)
+    {
+        for (int i = 0; i < sec->segs.size(); i++)
+        {
             int col_index = vec_contains_color(colors, sec->segs[i].color);
-            if ( col_index == -1) {
+            if (col_index == -1)
+            {
                 colors.push_back(sec->segs[i].color);
                 sec->segs[i].color_id = colors.size() - 1;
-            } else {
+            }
+            else
+            {
                 sec->segs[i].color_id = col_index;
             }
         }
     }
 
     return colors;
-
 }
 
 std::string color_to_str(sf::Color color)
@@ -213,7 +262,35 @@ std::string color_to_str(sf::Color color)
     return output;
 }
 
-void serialize(std::vector<Sector*> sectors, std::vector<sf::Color> colors, CameraInfo& inf)
+bool contains_same_segment(const Segment &seg, Sector *sec)
+{
+    // Check if the segment's start and end points match any existing segment in the sector
+    auto it = std::find_if(sec->segs.begin(), sec->segs.end(), [&](const Segment &s)
+                           { return (s.start.x == seg.start.x && s.start.y == seg.start.y &&
+                                     s.end.x == seg.end.x && s.end.y == seg.end.y) ||
+                                    (s.start.x == seg.end.x && s.start.y == seg.end.y &&
+                                     s.end.x == seg.start.x && s.end.y == seg.start.y); });
+
+    return it != sec->segs.end(); // Returns true if a matching segment is found
+}
+
+void add_other_portal(Segment seg, int16_t parent_id, std::vector<Sector *> sectors)
+{
+
+    for (Sector *sec : sectors)
+    {
+        if (sec->id == seg.portal_id)
+        {
+            seg.portal_id = parent_id;
+            if (!contains_same_segment(seg, sec))
+            {
+                sec->segs.push_back(seg);
+            }
+        }
+    }
+}
+
+void serialize(std::vector<Sector *> sectors, std::vector<sf::Color> colors, CameraInfo &inf)
 {
     /* File name can be 256 chars long */
     std::string filename = "";
@@ -223,36 +300,53 @@ void serialize(std::vector<Sector*> sectors, std::vector<sf::Color> colors, Came
     std::fstream output_file;
     output_file.open(filename, std::ios::out);
 
+    /* Add parallel portals for other sector */
+    for (Sector *sec : sectors)
+    {
+        for (Segment seg : sec->segs)
+        {
+            if (seg.portal_id != -1)
+            {
+                add_other_portal(seg, sec->id, sectors);
+            }
+        }
+    }
+
     /* Itterate over sectors write them into file */
     // V not_really_a_version
     unsigned int size = 0;
-    for (Sector* sec : sectors) {
-        if (sec->segs.size() > 0) {
+    for (Sector *sec : sectors)
+    {
+        if (sec->segs.size() > 0)
+        {
             size++;
         }
     }
 
     output_file << VERSION << "\n"; //" SECS " << size << "\n\n";
-    output_file << "PPOS\n" << inf.pos.x << " " << inf.pos.y << " " << inf.sec_id << "\n";
+    output_file << "PPOS\n"
+                << inf.pos.x << " " << inf.pos.y << " " << inf.sec_id << "\n";
     output_file << "COLS " << colors.size() << "\n";
 
-    
-
     /* Add Colors in order of usage [index is ID] */
-    for (sf::Color col : colors) {
+    for (sf::Color col : colors)
+    {
         output_file << color_to_str(col);
     }
 
     output_file << "SECS " << size << "\n";
 
-    for (Sector* sec : sectors) {
-            /* Sector ID */
-        if (sec->segs.size() > 0) {
+    for (Sector *sec : sectors)
+    {
+        /* Sector ID */
+        if (sec->segs.size() > 0)
+        {
             output_file << "ID " << sec->id << " NUM_W " << sec->segs.size() << "\n";
 
-            for (Segment seg : sec->segs) {     /* No sex inuendos here */
-                output_file << seg.start.x << " " << seg.start.y << " " << seg.end.x << " " << seg.end.y << " " << seg.color_id << " " 
-                            << seg.portal_id << " " << seg.parent_id << "\n";
+            for (Segment seg : sec->segs)
+            { /* No sex inuendos here */
+                output_file << seg.start.x << " " << seg.start.y << " " << seg.end.x << " " << seg.end.y << " " << seg.color_id << " "
+                            << seg.portal_id << "\n";
             }
             output_file << "\n";
         }
