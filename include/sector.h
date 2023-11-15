@@ -34,6 +34,7 @@ struct Segment
 {
     Point start, end;
     int16_t portal_id = -1;
+    int16_t parent_id = 0;
     sf::Color color = sf::Color::White;
     int color_id;
 };

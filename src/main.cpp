@@ -39,8 +39,8 @@ int main()
     bool panning = false;
 
     /* Placing Player Stuff/Camera */
-    bool placing_player = false;
-    sf::Vector2f cam_pos = {0, 0};
+    bool placing_camera = false;
+    CameraInfo cam;
 
     /* Setting portals */
     bool setting_portal = false;
@@ -107,9 +107,9 @@ int main()
                         if (event.mouseButton.button == sf::Mouse::Left)
                         {
                             
-                            if (placing_player) {
+                            if (placing_camera) {
                                 sf::Vector2f player_pos = static_cast<sf::Vector2f>(sf::Mouse::getPosition(window));
-                                cam_pos = player_pos + point_v2f(offset);
+                                cam.pos = player_pos + point_v2f(offset);
                             } else if (!holding)
                             /* Left button is pressed */
                             /* Get mouse position and wait for release */
@@ -171,6 +171,7 @@ int main()
                                     seg->end.y = temp_s.end.y;
                                 }
 
+                                seg->parent_id = sec_id;
                                 seg->color = previous_color;
 
                                 /* Add segment to vector of walls */
@@ -228,7 +229,7 @@ int main()
                         {
                             /* Save */
                             printf("Saving\n");
-                            serialize(sectors, unique_colors(sectors), cam_pos);
+                            serialize(sectors, unique_colors(sectors), cam);
                         }
                         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
                         {
@@ -264,13 +265,12 @@ int main()
                                 i++;
                             }
                         } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::C)) {
-                            placing_player = !placing_player;
+                            placing_camera = !placing_camera;
                         }
                     } else if (event.type == sf::Event::KeyReleased) {
                         
                         setting_portal = false;
                         if (event.key.code == sf::Keyboard::Key::P) {
-                            printf("This is working?\n");
                             current_seg->portal_id = sec_id;
                             printf("Portal ID set to %d\n", current_seg->portal_id);
                         }
@@ -306,6 +306,10 @@ int main()
             }
         }
 
+        if (placing_camera) {
+            cam.sec_id = sec_id;
+        }
+
         window.clear(sf::Color::Black);
 
         /* UI stuff starts here */
@@ -338,7 +342,7 @@ int main()
         fuckyou.setFillColor({232,228,228});
 
         sf::RectangleShape player_pos;
-        player_pos.setPosition(cam_pos + point_v2f(offset));
+        player_pos.setPosition(cam.pos + point_v2f(offset));
         player_pos.setOrigin({5, 5});
         player_pos.setSize({10, 10});
         player_pos.setFillColor(sf::Color::Cyan);

@@ -9,7 +9,7 @@
 
 #include "sector.h"
 
-#define VERSION "v1_2"
+#define VERSION "v1_4"
 
 #pragma once
 
@@ -23,6 +23,12 @@ Point v2i_point(sf::Vector2i point)
     p.y = point.y;
     return p;
 }
+
+struct CameraInfo
+{
+    sf::Vector2f pos = {0, 0};
+    uint16_t sec_id = 0;
+};
 
 /// @brief Holds 2 points
 struct p2
@@ -207,7 +213,7 @@ std::string color_to_str(sf::Color color)
     return output;
 }
 
-void serialize(std::vector<Sector*> sectors, std::vector<sf::Color> colors, sf::Vector2f p)
+void serialize(std::vector<Sector*> sectors, std::vector<sf::Color> colors, CameraInfo& inf)
 {
     /* File name can be 256 chars long */
     std::string filename = "";
@@ -227,7 +233,7 @@ void serialize(std::vector<Sector*> sectors, std::vector<sf::Color> colors, sf::
     }
 
     output_file << VERSION << "\n"; //" SECS " << size << "\n\n";
-    output_file << "PPOS\n" << p.x << " " << p.y << "\n";
+    output_file << "PPOS\n" << inf.pos.x << " " << inf.pos.y << " " << inf.sec_id << "\n";
     output_file << "COLS " << colors.size() << "\n";
 
     
@@ -245,7 +251,8 @@ void serialize(std::vector<Sector*> sectors, std::vector<sf::Color> colors, sf::
             output_file << "ID " << sec->id << " NUM_W " << sec->segs.size() << "\n";
 
             for (Segment seg : sec->segs) {     /* No sex inuendos here */
-                output_file << seg.start.x << " " << seg.start.y << " " << seg.end.x << " " << seg.end.y << " " << seg.color_id << " " << seg.portal_id << "\n";
+                output_file << seg.start.x << " " << seg.start.y << " " << seg.end.x << " " << seg.end.y << " " << seg.color_id << " " 
+                            << seg.portal_id << " " << seg.parent_id << "\n";
             }
             output_file << "\n";
         }
