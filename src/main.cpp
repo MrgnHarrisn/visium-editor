@@ -95,8 +95,8 @@ int main()
 
             if (sfmlHandleEvents)
             {
-                sf::Vector2f mousePos = static_cast<sf::Vector2f>(window.mapCoordsToPixel({event.mouseButton.x, event.mouseButton.y}));
-                if (!box_contains_pos(rightPanel->getAbsolutePosition(), rightPanel->getSize(), mousePos))
+                sf::Vector2i mousePos = (window.mapCoordsToPixel(sf::Vector2f(event.mouseButton.x, event.mouseButton.y)));
+                if (!box_contains_pos(rightPanel->getAbsolutePosition(), rightPanel->getSize(), sf::Vector2f(mousePos.x, mousePos.y)))
                 {
                     if (event.type == sf::Event::Closed)
                     {
@@ -263,7 +263,7 @@ int main()
                         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
                         {
                             // current_seg = new Segment;
-                            float closest = MAXFLOAT;
+                            float closest = FLT_MAX;
                             sf::Vector2f mouse_pos = (sf::Vector2f)sf::Mouse::getPosition(window) - point_v2f(offset);
                             int i = 0;
                             for (Segment seg : sectors[sec_id]->segs)
@@ -290,8 +290,8 @@ int main()
                     }
                 }
             }
-            sf::Vector2f mousePos = static_cast<sf::Vector2f>(window.mapCoordsToPixel({event.mouseButton.x, event.mouseButton.y}));
-            if (!box_contains_pos({1400, 750}, {200, 50}, mousePos)) {
+            sf::Vector2i mousePos = (window.mapCoordsToPixel(sf::Vector2f(event.mouseButton.x, event.mouseButton.y)));
+            if (!box_contains_pos({1400, 750}, {200, 50}, sf::Vector2f(mousePos.x, mousePos.y))) {
                 gui.handleEvent(event);
             }
         }
