@@ -67,6 +67,7 @@ int main()
     sec_walls->getRenderer()->setTextColor(sf::Color::White);
 
     auto color_picker = tgui::ColorPicker::create();
+    color_picker->setColor(sf::Color(156, 42, 29));
     
 
     // auto is_portal_option = tgui::CheckBox::create("Is Portal?");
@@ -287,6 +288,7 @@ int main()
                         if (event.key.code == sf::Keyboard::Key::P) {
                             current_seg->portal_id = sec_id;
                             printf("Portal ID set to %d\n", current_seg->portal_id);
+                            add_other_portal(*current_seg, current_sec->id, sectors);
                         }
                     }
                 }
